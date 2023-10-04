@@ -8,7 +8,7 @@ This project is a bit all over the place since I treated it as my personal playg
 
 Parameter Store, a capability of AWS Systems Manager, provides secure, hierarchical storage for configuration data management and secrets management. Here I implemented the storage of retrieval of parameters to from the Parameter Store.
 
-[Code](URL)
+[Click here for code.](https://github.com/khadijah99/serverless-playground/blob/master/src/functions/parameterStore.ts)
 
 ### Handler 2: publishSNS.ts
 
@@ -43,7 +43,7 @@ module.exports.handler = async (event: any, context: any) => {
 
 Here I am retrieveing the message posted to the SNS topic in the previous handler. I am then posting the retrieved message to Slack through a Webhook.
 
-[Code](URL)
+[Click here for code.](https://github.com/khadijah99/serverless-playground/blob/master/src/functions/subscriberSNS.ts)
 
 ### Handler 4: publishSQS.ts
 
@@ -97,22 +97,21 @@ module.exports.handler = async (event: any) => {
 
 Here I experimented with how I can transfer data from my local postgres databse to Amazon DynamoDB Database. Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability. DynamoDB lets you offload the administrative burdens of operating and scaling a distributed database so that you don't have to worry about hardware provisioning, setup and configuration, replication, software patching, or cluster scaling.
 
-[Code](URL)
+[Click here for code.](https://github.com/khadijah99/serverless-playground/blob/master/src/functions/postgres-to-dynamodb.ts)
 
 ### Getting Started
 
-```typescript
-// Code snippet or example usage of the handler
-```
+If you wish to test this out for yourself, clone the project, install dependencies, and configure your AWS profile as well as the .env file with your project settings.
 
 ### Deployment
 
-```typescript
-// Code snippet or example usage of the handler
+After you are done configuring your project settings, either invoke the functions offline since the project has the serverless-offline plugin added to it, or deploy it using:
+
+```
+serverless deploy
 ```
 
 ### Built With
 
-```typescript
-// Code snippet or example usage of the handler
-```
+- Typesript plugin added for ts support.
+- AWS Lambda, Serverless Framework.
