@@ -1,0 +1,105 @@
+service: serverless-project
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+
+  iam:
+    role:
+      statements:
+        # Allowing step functions to log to CloudWatch
+        - Effect: Allow
+          Action:
+            - logs:CreateLogDelivery
+            - logs:GetLogDelivery
+            - logs:UpdateLogDelivery
+            - logs:DeleteLogDelivery
+            - logs:ListLogDeliveries
+            - logs:PutResourcePolicy
+            - logs:DescribeResourcePolicies
+            - logs:DescribeLogGroups
+          Resource: "*"
+
+resources:
+  Resources:
+    MyStateMachineLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/stateMachines/MyStepFunctionLogGroup/logs
+        RetentionInDays: 14
+    SuperTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: MyCustomTopic
+    MySQSQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: MyQueue
+
+functions:
+  extractZip:
+    handler: src/functions/extract-zip.handler
+  xlsToDB:
+    handler: src/functions/xlsToDB.handler
+  snsSubsriber:
+    handler: src/functions/subscriberSNS.handler
+    events:
+      - sns:
+          arn: !Ref SuperTopic
+          topicName: MyCustomTopic
+          filterPolicy:
+            name:
+              - khadija
+  sqsSubscriber:
+    handler: src/functions/subscriberSQS.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - MySQSQueue
+              - Arn
+          batchSize: 1
+          maximumBatchingWindow: 60
+          functionResponseType: ReportBatchItemFailures
+          # filterPatterns:
+          #   - a: [1, 2]
+  cmdhello:
+    handler: src/functions/cmdhello.handler
+  cmdwelcome:
+    handler: src/functions/cmdwelcome.handler
+  publishToSNS:
+    handler: src/functions/publishSNS.handler
+  publishToSQS:
+    handler: src/functions/publishSQS.handler
+  postgresToDynamoDB:
+    handler: src/functions/postgres-to-dynamodb.handler
+  parameterStore:
+    handler: src/functions/parameterStore.handler
+
+# custom:
+#   stepFunctionsOffline:
+#     Hello: hello
+#     Welcome: welcome
+
+custom:
+  stepFunctionsLocal:
+    accountId: 101010101010
+    region: us-east-1
+    TaskResourceMapping:
+      exampleStep: arn:aws:lambda:us-east-1:101010101010:function:hello
+
+stepFunctions:
+  stateMachines:
+    CMD: ${file(state-machines/cmd.yml)}
+
+plugins:
+  - serverless-step-functions
+  # - serverless-step-functions-offline
+  - serverless-step-functions-local
+  - serverless-offline-lambda
+  - serverless-offline
+  - serverless-plugin-typescript
+  - serverless-dynamodb-local

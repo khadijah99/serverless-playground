@@ -1,0 +1,25 @@
+name: CMD
+definition:
+  Comment: CMD State Machine
+  StartAt: SayHello
+  States:
+    SayHello:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [cmdhello, Arn]
+      Catch:
+        - ErrorEquals:
+            - States.TaskFailed
+          Next: SayWelcome
+      Next: SayWelcome
+    SayWelcome:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [cmdwelcome, Arn]
+      Catch:
+        - ErrorEquals:
+            - States.TaskFailed
+          Next: Success
+      Next: Success
+    Success:
+      Type: Succeed
