@@ -99,11 +99,47 @@ Here I experimented with how I can transfer data from my local postgres databse 
 
 [Click here for code.](https://github.com/khadijah99/serverless-playground/blob/master/src/functions/postgres-to-dynamodb.ts)
 
-### Getting Started
+## State Machine
+
+AWS Step Functions is a serverless orchestration service that lets you integrate with AWS Lambda functions and other AWS services to build business-critical applications. Through Step Functions' graphical console, you see your application’s workflow as a series of event-driven steps.
+
+Step Functions is based on state machines and tasks. In Step Functions, a workflow is called a state machine, which is a series of event-driven steps. Each step in a workflow is called a state. A Task state represents a unit of work that another AWS service, such as AWS Lambda, performs. A Task state can call any AWS service or API.
+
+Here is an example of a simple wokrflow I implemented using the two handlers cmdhello.ts and cmdwelcome.ts as the tasks.
+
+```yml
+name: CMD
+definition:
+  Comment: CMD State Machine
+  StartAt: SayHello
+  States:
+    SayHello:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [cmdhello, Arn]
+      Catch:
+        - ErrorEquals:
+            - States.TaskFailed
+          Next: SayWelcome
+      Next: SayWelcome
+    SayWelcome:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [cmdwelcome, Arn]
+      Catch:
+        - ErrorEquals:
+            - States.TaskFailed
+          Next: Success
+      Next: Success
+    Success:
+      Type: Succeed
+```
+
+## Getting Started
 
 If you wish to test this out for yourself, clone the project, install dependencies, and configure your AWS profile as well as the .env file with your project settings.
 
-### Deployment
+## Deployment
 
 After you are done configuring your project settings, either invoke the functions offline since the project has the serverless-offline plugin added to it, or deploy it using:
 
@@ -111,7 +147,7 @@ After you are done configuring your project settings, either invoke the function
 serverless deploy
 ```
 
-### Built With
+## Built With
 
 - Typesript plugin added for ts support.
 - AWS Lambda, Serverless Framework.
